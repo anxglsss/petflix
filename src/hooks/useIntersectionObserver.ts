@@ -15,7 +15,7 @@ export default function useIntersectionObserver(
       options ?? {
         root: null,
         rootMargin: "0px",
-        // threshold: buildThresholdList(),
+      
         threshold: 1,
       }
     );

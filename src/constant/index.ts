@@ -8,6 +8,13 @@ export const MAIN_PATH = {
   browse: "browse",
   genreExplore: "genre",
   watch: "watch",
+  signIn: "signin",
+  signUp: "signup",
+  newAndPopular: "new-and-popular",
+  myList: "my-list",
+  browseByLanguages: "browse-by-languages",
+  tvShows: "tv-shows",
+  movies: "movies",
 };
 
 export const ARROW_MAX_WIDTH = 60;

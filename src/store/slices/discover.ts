@@ -1,8 +1,8 @@
+import { createSlice, isAnyOf } from "@reduxjs/toolkit";
 import { TMDB_V3_API_KEY } from "src/constant";
-import { tmdbApi } from "./apiSlice";
 import { MEDIA_TYPE, PaginatedMovieResult } from "src/types/Common";
 import { MovieDetail } from "src/types/Movie";
-import { createSlice, isAnyOf } from "@reduxjs/toolkit";
+import { tmdbApi } from "./apiSlice";
 
 const initialState: Record<string, Record<string, PaginatedMovieResult>> = {};
 export const initialItemState: PaginatedMovieResult = {
@@ -85,11 +85,15 @@ const extendedApi = tmdbApi.injectEndpoints({
         mediaType: MEDIA_TYPE;
         itemKey: number | string;
       },
-      { mediaType: MEDIA_TYPE; apiString: string; page: number }
+      { mediaType: MEDIA_TYPE; apiString: string; page: number; includeAdult?: boolean }
     >({
-      query: ({ mediaType, apiString, page }) => ({
+      query: ({ mediaType, apiString, page, includeAdult = false }) => ({
         url: `/${mediaType}/${apiString}`,
-        params: { api_key: TMDB_V3_API_KEY, page },
+        params: { 
+          api_key: TMDB_V3_API_KEY, 
+          page,
+          include_adult: includeAdult
+        },
       }),
       transformResponse: (
         response: PaginatedMovieResult,
@@ -121,6 +125,33 @@ const extendedApi = tmdbApi.injectEndpoints({
         params: { api_key: TMDB_V3_API_KEY },
       }),
     }),
+    getVideosByLanguage: build.query<
+      PaginatedMovieResult & {
+        mediaType: MEDIA_TYPE;
+        itemKey: string;
+      },
+      { mediaType: MEDIA_TYPE; language: string; page: number; includeAdult?: boolean }
+    >({
+      query: ({ mediaType, language, page, includeAdult = false }) => ({
+        url: `/discover/${mediaType}`,
+        params: { 
+          api_key: TMDB_V3_API_KEY, 
+          with_original_language: language, 
+          page,
+          sort_by: 'popularity.desc',
+          include_adult: includeAdult
+        },
+      }),
+      transformResponse: (
+        response: PaginatedMovieResult,
+        _,
+        { mediaType, language }
+      ) => ({
+        ...response,
+        mediaType,
+        itemKey: language,
+      }),
+    }),
   }),
 });
 
@@ -133,4 +164,6 @@ export const {
   useLazyGetAppendedVideosQuery,
   useGetSimilarVideosQuery,
   useLazyGetSimilarVideosQuery,
+  useGetVideosByLanguageQuery,
+  useLazyGetVideosByLanguageQuery,
 } = extendedApi;

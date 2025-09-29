@@ -1,25 +1,36 @@
-import * as React from "react";
+import MenuIcon from "@mui/icons-material/Menu";
 import AppBar from "@mui/material/AppBar";
+import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 import Stack from "@mui/material/Stack";
 import Toolbar from "@mui/material/Toolbar";
-import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
-import Menu from "@mui/material/Menu";
-import MenuIcon from "@mui/icons-material/Menu";
-import Avatar from "@mui/material/Avatar";
 import Tooltip from "@mui/material/Tooltip";
-import MenuItem from "@mui/material/MenuItem";
+import Typography from "@mui/material/Typography";
+import * as React from "react";
+import { APP_BAR_HEIGHT, MAIN_PATH } from "src/constant";
 import useOffSetTop from "src/hooks/useOffSetTop";
-import { APP_BAR_HEIGHT } from "src/constant";
 import Logo from "../Logo";
-import SearchBox from "../SearchBox";
 import NetflixNavigationLink from "../NetflixNavigationLink";
+import SearchBox from "../SearchBox";
 
-const pages = ["My List", "Movies", "Tv Shows"];
+const pages = [
+  { name: "New & Popular", path: MAIN_PATH.newAndPopular },
+  { name: "My List", path: MAIN_PATH.myList },
+  { name: "Browse by Languages", path: MAIN_PATH.browseByLanguages },
+  { name: "Movies", path: MAIN_PATH.movies },
+  { name: "TV Shows", path: MAIN_PATH.tvShows },
+];
 
 const MainHeader = () => {
   const isOffset = useOffSetTop(APP_BAR_HEIGHT);
+  
+  // For demo purposes, we'll assume user is not signed in initially
+  // In a real app, this would come from authentication state
+  const [isSignedIn, setIsSignedIn] = React.useState(false);
 
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
     null
@@ -91,8 +102,13 @@ const MainHeader = () => {
             }}
           >
             {pages.map((page) => (
-              <MenuItem key={page} onClick={handleCloseNavMenu}>
-                <Typography textAlign="center">{page}</Typography>
+              <MenuItem key={page.name} onClick={handleCloseNavMenu}>
+                <NetflixNavigationLink
+                  to={`/${page.path}`}
+                  sx={{ color: "inherit", textDecoration: "none" }}
+                >
+                  <Typography textAlign="center">{page.name}</Typography>
+                </NetflixNavigationLink>
               </MenuItem>
             ))}
           </Menu>
@@ -120,45 +136,69 @@ const MainHeader = () => {
         >
           {pages.map((page) => (
             <NetflixNavigationLink
-              to=""
+              to={`/${page.path}`}
               variant="subtitle1"
-              key={page}
+              key={page.name}
               onClick={handleCloseNavMenu}
             >
-              {page}
+              {page.name}
             </NetflixNavigationLink>
           ))}
         </Stack>
 
-        <Box sx={{ flexGrow: 0, display: "flex", gap: 2 }}>
+        <Box sx={{ flexGrow: 0, display: "flex", gap: 2, alignItems: "center" }}>
           <SearchBox />
-          <Tooltip title="Open settings">
-            <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-              <Avatar alt="user_avatar" src="/avatar.png" variant="rounded" />
-            </IconButton>
-          </Tooltip>
-          <Menu
-            sx={{ mt: "45px" }}
-            id="avatar-menu"
-            anchorEl={anchorElUser}
-            anchorOrigin={{
-              vertical: "top",
-              horizontal: "right",
-            }}
-            keepMounted
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "right",
-            }}
-            open={Boolean(anchorElUser)}
-            onClose={handleCloseUserMenu}
-          >
-            {["Account", "Logout"].map((setting) => (
-              <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                <Typography textAlign="center">{setting}</Typography>
-              </MenuItem>
-            ))}
-          </Menu>
+          {isSignedIn ? (
+            <>
+              <Tooltip title="Open settings">
+                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                  <Avatar alt="user_avatar" src="/avatar.png" variant="rounded" />
+                </IconButton>
+              </Tooltip>
+              <Menu
+                sx={{ mt: "45px" }}
+                id="avatar-menu"
+                anchorEl={anchorElUser}
+                anchorOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                open={Boolean(anchorElUser)}
+                onClose={handleCloseUserMenu}
+              >
+                {["Account", "Logout"].map((setting) => (
+                  <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                    <Typography textAlign="center">{setting}</Typography>
+                  </MenuItem>
+                ))}
+              </Menu>
+            </>
+          ) : (
+            <Button
+              component={NetflixNavigationLink}
+              to={`/${MAIN_PATH.signIn}`}
+              variant="contained"
+              sx={{
+                backgroundColor: "#e50914",
+                color: "white",
+                fontWeight: 600,
+                textTransform: "none",
+                px: 2,
+                width: "140px",
+                borderRadius: 1,
+                "&:hover": {
+                  backgroundColor: "#f40612",
+                },
+              }}
+            >
+              Sign In
+            </Button>
+          )}
         </Box>
       </Toolbar>
     </AppBar>
